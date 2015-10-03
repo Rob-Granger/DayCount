@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title>Day Count</title>
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></meta>
+	</head>
+	<body>
+
+	<div style="width: 100%;">
+		<div class="topLine">
+			<div style="float: left;"><img src="images/daycount.png" /></div>
+			<div style="float: left;" class="headline">Day Count</div>
+			<div style="float: right;"><a href="{{ url }}">{{ url_linktext }}</a> {{user.nickname}}</div>
+		</div>
+	</div>
+
+<div class="headline">Calculate Day Count</div>
+
+{% if user %}
+
+<form action="/calculate" method="post">
+	<table>
+		<tr>
+			<td><label for="id" id="id">{{lastsetup.key.id}}</label></td>		
+		</tr>
+		<tr>
+			<td><label for="dayBasis">Day Basis</label></td>
+			<td><input type="text" name="dayBasis" id="dayBasis" size="80" value="{{lastsetup.basis}}"/></td>
+		</tr>
+		<tr>
+			<td><label for="startDate">Start Date</label></td>
+			<td><input type="date" name="startDate" id="startDate" size="80" value="{{lastsetup.startdate|date:"d.m.Y"}}"/></td>
+		</tr>
+		<tr>
+			<td><label for="endDate">End Date</label></td>
+			<td><input type="date" name="endDate" id="endDate" size="80" value="{{lastsetup.enddate|date:"d.m.Y" }}"/></td>
+		</tr>
+		<tr>
+			<td><label for="result">Result: {{lastsetup.result}}</label></td>		
+		</tr>
+		<tr>
+			<td colspan="2" align="right"><input type="submit" value="Calculate"/></td>
+		</tr>
+	</table>
+</form>
+
+{% else %}
+Login with your Google Account to calculate Day Count.
+{% endif%}
+
+
+</body>
+</html>
