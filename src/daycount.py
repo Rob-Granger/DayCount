@@ -8,16 +8,28 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
-from datetime import date
+from datetime import datetime
 
 # DayCount defines the data model for the last saved version
 # as it extends db.model the content of the class will automatically stored
 class DayCountModel(db.Model):
-  author = db.UserProperty(required=True)
-  basis = db.StringProperty(required=True)
-  startdate = db.DateTimeProperty(required=True)
-  enddate = db.DateTimeProperty(required=True)
-  result = db.IntegerProperty()
+    author = db.UserProperty(required=True)
+    basis = db.StringProperty(required=True)#, choices=set(["Select Basis","act/360","act/365","30/360"]))
+    inclusionoption = db.StringProperty(required=True) 
+    startdate = db.DateProperty()
+    enddate = db.DateProperty()
+    result = db.IntegerProperty()
+    
+    def calcResult(self):
+        daycount = (self.enddate - self.startdate).days
+        
+        if self.inclusionoption == "exclude first, exclude last":
+            daycount -= 1
+        elif self.inclusionoption == "include first, include last":
+            daycount += 1    
+        
+        return daycount
+        
   
 # The main page where the user can login and logout
 # MainPage is a subclass of webapp.RequestHandler and overwrites the get method
@@ -31,40 +43,43 @@ class MainPage(webapp.RequestHandler):
             url = users.create_logout_url(self.request.uri)
             url_linktext = 'Logout'
 # GQL is similar to SQL             
-        lastsetupquery = DayCountModel.gql("WHERE author = :author",
-               author=users.get_current_user())
-        if lastsetupquery:
-            lastsetup = lastsetupquery.get()
-        else:
-            lastsetup = DayCountModel()   
+            daycountquery = DayCountModel.gql("WHERE author = :author",
+                                                author=users.get_current_user())
+            if daycountquery.count(1) > 0:
+                daycount = daycountquery.get()
+            else:
+                daycount = DayCountModel(author = users.get_current_user(),
+                                         basis = "Select Basis",
+                                         inclusionoption = "Select Option")    
+                daycount.put();
         
-        values = {
-            'lastsetup': lastsetup,
-            'user': user,
-            'url': url,
-            'url_linktext': url_linktext,
-        }
-        self.response.out.write(template.render('main.html', values))
+            values = {
+                      'daycount': daycount,
+                      'user': user,
+                      'url': url,
+                      'url_linktext': url_linktext,
+                      }
+            self.response.out.write(template.render('main.html', values))
 
 # This class calculates and saves Day Count results
 class Calculate(webapp.RequestHandler):
     def post(self):
         user = users.get_current_user()
         if user:
-            daycount = DayCountModel(author  = users.get_current_user(),
-                basis = self.request.get('dayBasis'),
-                startdate = self.request.get('startDate'),
-                enddate = self.request.get('endDate'),
-                result = 4)
-
-            raw_id = self.request.get('id')
-             
-            if raw_id:
-                item_id = int(raw_id)
-                previousdaycount = DayCountModel.get_by_id(item_id)
-                previousdaycount.delete()
+            daycountquery = DayCountModel.gql("WHERE author = :author",
+                                               author=users.get_current_user())
+            if daycountquery.count(1) > 0:
+                startDate = datetime.strptime(self.request.get('startDate'), "%Y-%m-%d").date()
+                endDate = datetime.strptime(self.request.get('endDate'), "%Y-%m-%d").date()
+                
+                daycount = daycountquery.get()
+                daycount.basis = self.request.get('dayBasis')
+                daycount.inclusionoption = self.request.get('inclusionOption')
+                daycount.startdate = startDate
+                daycount.enddate = endDate
+                daycount.result = daycount.calcResult()
             
-            daycount.put();
+                daycount.put();
                 
             self.redirect('/')  
             

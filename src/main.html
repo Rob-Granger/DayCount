@@ -23,22 +23,35 @@
 <form action="/calculate" method="post">
 	<table>
 		<tr>
-			<td><label for="id" id="id">{{lastsetup.key.id}}</label></td>		
+			<td><label for="dayBasis">Day Basis</label></td>
+			<td><input type="text" name="dayBasis" id="dayBasis" size="20" value="{{daycount.basis}}" list="dayBasis"/></td>
+			 <datalist id="dayBasis">
+    			<option value="act/360">
+    			<option value="act/365">
+    			<option value="30/365">
+  			</datalist>
 		</tr>
 		<tr>
-			<td><label for="dayBasis">Day Basis</label></td>
-			<td><input type="text" name="dayBasis" id="dayBasis" size="80" value="{{lastsetup.basis}}"/></td>
+			<td><label for="inclusionOption">Inclusion Option</label></td>
+			<td><input type="text" name="inclusionOption" id="inclusionOption" size="20" value="{{daycount.inclusionoption}}" list="inclusionOption"/></td>
+			<datalist id="inclusionOption">
+    			<option value="include first, exclude last">
+    			<option value="exclude first, include last">
+    			<option value="include first, include last">
+    			<option value="exclude first, exclude last">
+  			</datalist>
 		</tr>
 		<tr>
 			<td><label for="startDate">Start Date</label></td>
-			<td><input type="date" name="startDate" id="startDate" size="80" value="{{lastsetup.startdate|date:"d.m.Y"}}"/></td>
+			<td><input type="date" name="startDate" id="startDate" size="80" value="{{daycount.startdate|date:"Y-m-d"}}"/></td>
 		</tr>
 		<tr>
 			<td><label for="endDate">End Date</label></td>
-			<td><input type="date" name="endDate" id="endDate" size="80" value="{{lastsetup.enddate|date:"d.m.Y" }}"/></td>
+			<td><input type="date" name="endDate" id="endDate" size="80" value="{{daycount.enddate|date:"Y-m-d"}}"/></td>
 		</tr>
 		<tr>
-			<td><label for="result">Result: {{lastsetup.result}}</label></td>		
+			<td><label for="resultlabel">Result:</label></td>	
+			<td><label for="result">{{daycount.result}}</label></td>	
 		</tr>
 		<tr>
 			<td colspan="2" align="right"><input type="submit" value="Calculate"/></td>
