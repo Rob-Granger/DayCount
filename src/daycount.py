@@ -25,7 +25,7 @@ class MainPage(webapp.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url = users.create_login_url(self.request.uri)
-        url_linktext = 'Login'
+        url_linktext = 'Login' 
                     
         if user:
             url = users.create_logout_url(self.request.uri)
